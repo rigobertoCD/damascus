@@ -135,7 +135,7 @@ public class InitCommand implements ICommand {
     @Parameter(names = "-p", description = "Package name. (e.g. com.liferay.test)", validateWith = PackageNameValidator.class)
     private String packageName = null;
 
-    @Parameter(names = "-yaml", description = "Create base.yaml instead of base.json")
+    @Parameter(names = "-yaml", description = "Create base.yaml instead of base.json (only used with -init)")
     private boolean yaml = false;
 
 }

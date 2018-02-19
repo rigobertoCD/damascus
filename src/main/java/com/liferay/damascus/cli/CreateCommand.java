@@ -188,6 +188,26 @@ public class CreateCommand implements ICommand {
         //Finalize Gradle Files appropriately.
         finalizeGradleFiles(DamascusProps.CURRENT_DIR);
     }
+    
+    private void generateLanguageProperties(DamascusBase damascusBase, 
+    		String templateFileName, String outputFilePath, String webPath ) throws IOException, TemplateException, URISyntaxException, ConfigurationException{
+    	
+    	Set<String> i18nKeys = LocalizationKeys.getI18nKeys(webPath);
+    	
+        Map params = Maps.newHashMap();
+
+        //Mapping values used in templates
+        params.put("i18nKeys", i18nKeys);
+
+        //Parse template and output
+        TemplateUtil.getInstance().process(
+            CreateCommand.class,
+            damascusBase.getLiferayVersion(),
+            templateFileName,
+            params,
+            outputFilePath);
+    	
+    }
 
     /**
      * Execute create command
@@ -300,9 +320,22 @@ public class CreateCommand implements ICommand {
             CommonUtil.runGradle(serviceXmlPath, "buildService");
 
             System.out.println("Moving all modules projects into the same directory");
+            
+            // Generate Language.Properties file
+            System.out.println("Generating Language.properties");
+            String languagePropertiesPath = TemplateUtil.getInstance().getLanguagePropertiesPath(
+                CREATE_TARGET_PATH,
+                dashCaseProjectName
+            );
+            String webPath = TemplateUtil.getInstance().getWebPath(
+                    CREATE_TARGET_PATH,
+                    dashCaseProjectName
+                );
+			generateLanguageProperties(dmsb, DamascusProps.LANGUAGE_PROPERTIES, languagePropertiesPath, webPath);
 
             // Finalize Project Directory: move modules directories into the current directory
             finalizeProjects(dashCaseProjectName);
+            
             
             System.out.println("Done.");
 

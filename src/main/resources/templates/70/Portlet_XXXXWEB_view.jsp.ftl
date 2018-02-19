@@ -149,7 +149,7 @@
 					field.type?string == "com.liferay.damascus.cli.json.fields.DocumentLibrary" ||
 					field.type?string == "com.liferay.damascus.cli.json.fields.Integer"
 					>
-				<liferay-ui:search-container-column-text name="${field.name?cap_first}"
+				<liferay-ui:search-container-column-text name='<%= FriendlyURLNormalizerUtil.normalize("${field.name}") %>'
 														 property="${field.name}" orderable="true" orderableProperty="${field.name}"
 														 align="left" />
 					</#if>
@@ -161,7 +161,7 @@
 					field.type?string == "com.liferay.damascus.cli.json.fields.Date"     ||
 					field.type?string == "com.liferay.damascus.cli.json.fields.DateTime"
 					>
-				<liferay-ui:search-container-column-text name="${field.name?cap_first}"
+				<liferay-ui:search-container-column-text name='<%= FriendlyURLNormalizerUtil.normalize("${field.name}") %>'
 														 value="<%= dateFormat.format(${uncapFirstModel}.get${field.name?cap_first}()) %>"
 														 orderable="true" orderableProperty="${field.name}" align="left" />
 					</#if>
@@ -174,7 +174,7 @@
 					field.type?string == "com.liferay.damascus.cli.json.fields.RichText" ||
 					field.type?string == "com.liferay.damascus.cli.json.fields.Text"
 					>
-				<liferay-ui:search-container-column-text name="${field.name?cap_first}"
+				<liferay-ui:search-container-column-text name='<%= FriendlyURLNormalizerUtil.normalize("${field.name}") %>'
 														 align="center">
 					<%
 					String ${field.name}Icon = iconUnchecked;

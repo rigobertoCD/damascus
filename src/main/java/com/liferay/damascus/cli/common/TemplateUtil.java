@@ -313,6 +313,48 @@ public class TemplateUtil {
     }
 
     /**
+     * Get Language.properties directory under *-web directory
+     *
+     * @param rootPath            the root directory of the project
+     * @param dashcaseProjectName project name
+     * @return relative path to the Language.properties from the root directory
+     */
+    public String getLanguagePropertiesPath(String rootPath, String dashcaseProjectName) {
+        String DS        = DamascusProps.DS;
+        String returnStr = rootPath;
+
+        if (rootPath.endsWith(DamascusProps.DS)) {
+            returnStr = StringUtils.removeEndIgnoreCase(rootPath, DamascusProps.DS);
+        }
+
+        return returnStr + DS + 
+        		dashcaseProjectName + DS + 
+        		dashcaseProjectName + DamascusProps.DIR_WEB_SUFFIX + DS + 
+        		DamascusProps.CONTENT_PATH + DS +
+        		DamascusProps.LANGUAGE_PROPERTIES;
+    }
+
+    /**
+     * Get *-web directory path
+     *
+     * @param rootPath            the root directory of the project
+     * @param dashcaseProjectName project name
+     * @return relative path to the *-web from the root directory
+     */
+    public String getWebPath(String rootPath, String dashcaseProjectName) {
+        String DS        = DamascusProps.DS;
+        String returnStr = rootPath;
+
+        if (rootPath.endsWith(DamascusProps.DS)) {
+            returnStr = StringUtils.removeEndIgnoreCase(rootPath, DamascusProps.DS);
+        }
+
+        return returnStr + DS + 
+        		dashcaseProjectName + DS + 
+        		dashcaseProjectName + DamascusProps.DIR_WEB_SUFFIX;
+    }
+    
+    /**
      * Type parameter
      *
      * @return type parameter list

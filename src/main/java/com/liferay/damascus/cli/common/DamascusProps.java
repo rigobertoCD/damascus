@@ -162,7 +162,12 @@ public class DamascusProps {
     public static final String _DEFAULT_GRADLE_JSP_PATH = "/src/main/resources/META-INF/resources";
 
     public static final int _DEPTH_OF_MINIMAL_PROJECT_PATH = 3;
-
+    
+    /**
+     * i18n
+     */    
+    public static final String LANGUAGE_PROPERTIES = "Language.properties";
+    public static final String CONTENT_PATH = "src" + DS + "main" + DS + "resources" + DS + "content";
 
     /**
      * Attribute keys for dmsc tags (dmsc:root, dmsc:sync)

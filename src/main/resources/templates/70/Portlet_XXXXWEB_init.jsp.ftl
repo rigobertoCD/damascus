@@ -53,6 +53,8 @@
 <%@ page import="com.liferay.portal.kernel.util.PortalUtil"%>
 <%@ page import="com.liferay.portal.kernel.model.GroupConstants"%>
 
+<%@ page import="com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil"%>
+
 <%@ page import="${packageName}.model.${capFirstModel}" %>
 <%@ page import="${packageName}.service.${capFirstModel}LocalServiceUtil"%>
 <%@ page import="${packageName}.web.portlet.action.${capFirstModel}Configuration" %>
