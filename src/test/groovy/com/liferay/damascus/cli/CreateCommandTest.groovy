@@ -404,13 +404,6 @@ class CreateCommandTest extends Specification {
         "SampleSB"  | "70"           | "com.liferay.test" | "base_related_false.json"    | ['asset-links']            | false                   | "sample-sb"
     }
 
-    void noFileContainsAnyTerm(files, terms) {
-        files.each { file ->
-            terms.each { term ->
-                assert !file.text.contains(term)
-            }
-        };
-    }
 
     @Unroll("Do not generate web test <#projectName> version <#liferayVersion> Package <#packageName> expectedProjectDirName <#expectedProjectDirName>")
     def "Do not generate web test"() {
@@ -439,5 +432,269 @@ class CreateCommandTest extends Specification {
         projectName | liferayVersion | packageName        | expectedProjectDirName
         "SampleSB"  | "70"           | "com.liferay.test" | "sample-sb"
 
+    }
+    
+    @Unroll("YAML Create Test from Main ProjectName<#projectName> version <#liferayVersion> Package <#packageName>")
+    def "YAML Create Test from Main"() {
+        when:
+        System.out.println "TEST: YAML Create Test from Main"
+        Map params = Maps.newHashMap();
+        def workTempDirAPI = workTempDir + DS + expectedProjectDirName + DS + expectedProjectDirName + "-api";
+
+        //Set parameters
+        params.put("projectName", projectName)
+        params.put("liferayVersion", liferayVersion)
+        params.put("packageName", packageName)
+        String entityName = projectName.replace("-", "")
+        params.put("entityName", entityName)
+        params.put("entityNameLower", StringUtils.lowerCase(entityName))
+        Map damascus = Maps.newHashMap();
+        damascus.put('damascus', params);
+
+        // Once clear _cfg to initialize with an actual test target template directory
+        TemplateUtil.getInstance().clear()
+
+        //Output base.yaml with parameters.
+        TemplateUtil.getInstance().process(
+                TemplateUtilTest.class,
+                liferayVersion,
+                DamascusProps.BASE_YAML,
+                damascus,
+                workTempDir + DS + DamascusProps.BASE_YAML)
+
+        //Run damascus -create
+        String[] args = ["-create"]
+        Damascus.main(args)
+
+        //Test files / directories are property generated
+        def projectNameCommon = workTempDir + DS + expectedProjectDirName + DS + expectedProjectDirName;
+        def service_path = new File(projectNameCommon + "-service");
+        def api_path = new File(projectNameCommon + "-api");
+        def buildGradle = new File(workspaceRootDir + DS + workspaceName + DS + "build.gradle")
+        def serviceXml = new File(projectNameCommon + "-service" + DS + "service.xml");
+        def implFile = FileUtils.listFiles(service_path, new RegexFileFilter(".*LocalServiceImpl.java"), TrueFileFilter.INSTANCE)
+        def validatorFile = FileUtils.listFiles(new File(workTempDir + DS + expectedProjectDirName), new RegexFileFilter(".*Validator.java"), TrueFileFilter.INSTANCE)
+        def portletKeysFile = FileUtils.listFiles(new File(workTempDirAPI), new RegexFileFilter(".*PortletKeys.java"), TrueFileFilter.INSTANCE)
+
+        def f = new File(workTempDir + DS + expectedProjectDirName)
+
+        //Target path map of a project
+        def pathMap = TestUtils.getPathMap(expectedProjectDirName)
+
+        def checkLoop = getCheckLoop(expectedProjectDirName);
+
+        then:
+        //*-service / *-api
+        true == f.exists()
+        true == f.isDirectory()
+        true == service_path.exists()
+        true == api_path.exists()
+        true == buildGradle.exists()
+        true == serviceXml.exists()
+        0 != implFile.size()
+        0 != validatorFile.size()
+        0 != portletKeysFile.size()
+        checkLoop.each { trow ->
+            def targetFile1 = FileUtils.listFiles(new File(trow.path), new RegexFileFilter(trow.target), TrueFileFilter.INSTANCE)
+            assert trow.amount == targetFile1.size()
+        }
+
+        where:
+        projectName | liferayVersion | packageName        | expectedProjectDirName
+        "SampleSB"  | "70"           | "com.liferay.test" | "sample-sb"
+
+    }
+  
+    @Unroll("YAML Run Damascus with a different template")
+    def "YAML Run Damascus with a different template"() {
+        setup:
+        System.out.println("TEST: YAML Run Damascus with a different template")
+        Map params = Maps.newHashMap();
+
+        //Set parameters
+        params.put("projectName", projectName)
+        params.put("liferayVersion", liferayVersion)
+        params.put("packageName", packageName)
+        String entityName = projectName.replace("-", "")
+        params.put("entityName", entityName)
+        params.put("entityNameLower", StringUtils.lowerCase(entityName))
+        Map damascus = Maps.newHashMap();
+        damascus.put('damascus', params);
+
+        //Output base.yaml with parameters and create the default templates
+        TemplateUtil.getInstance().process(
+                TemplateUtilTest.class,
+                DamascusProps.VERSION_70,
+                DamascusProps.BASE_YAML,
+                damascus,
+                workTempDir + DS + DamascusProps.BASE_YAML)
+
+        File org = new File(DamascusProps.TEMPLATE_FILE_PATH + DS + DamascusProps.VERSION_70);
+        File dist = new File(DamascusProps.TEMPLATE_FILE_PATH + DS + liferayVersion);
+        FileUtils.copyDirectory(org, dist)
+
+        // Delete base.yaml and the default template so that following method can create a new one
+        // and see if Damascus actually can point a new template.
+        FileUtils.deleteQuietly(new File(workTempDir + DS + DamascusProps.BASE_YAML))
+        FileUtils.deleteQuietly(org)
+
+        when:
+        // Once clear _cfg to initialize with an actual test target template directory
+        TemplateUtil.getInstance().clear()
+
+        //Output base.yaml with parameters and create the default templates
+        TemplateUtil.getInstance().process(
+                TemplateUtilTest.class,
+                liferayVersion,
+                DamascusProps.BASE_YAML,
+                damascus,
+                workTempDir + DS + DamascusProps.BASE_YAML)
+
+        //Run damascus -create
+        String[] args = ["-create"]
+        Damascus.main(args)
+
+        then:
+        //Target path map of a project
+        def pathMap = TestUtils.getPathMap(expectedProjectDirName)
+
+        def checkLoop = getCheckLoop(expectedProjectDirName)
+
+        checkLoop.each { trow ->
+            def targetFile1 = FileUtils.listFiles(new File(trow.path), new RegexFileFilter(trow.target), TrueFileFilter.INSTANCE)
+            assert trow.amount == targetFile1.size()
+        }
+
+        cleanup:
+        FileUtils.copyDirectory(dist, org)
+        FileUtils.deleteQuietly(dist)
+
+        where:
+        projectName | liferayVersion | packageName        | expectedProjectDirName
+        "SampleSB"  | "mytemp"       | "com.liferay.test" | "sample-sb"
+
+    }
+  
+    @Unroll("YAML Template creation tests with asset flags variations <#baseFilename> <#prohibitedTerms> <#prohibitedInServiceImpl>")
+    def "YAML Template creation tests with asset flags variations"() {
+        setup:
+        
+        System.out.println "TEST: YAML Template creation tests with asset flags variations"
+        Map params = Maps.newHashMap();
+
+        //Set parameters
+        params.put("projectName", projectName)
+        params.put("liferayVersion", liferayVersion)
+        params.put("packageName", packageName)
+        String entityName = projectName.replace("-", "")
+        params.put("entityName", entityName)
+        params.put("entityNameLower", StringUtils.lowerCase(entityName))
+        Map damascus = Maps.newHashMap();
+        damascus.put('damascus', params);
+
+        when:
+        FileUtils.deleteQuietly(new File(DamascusProps.CACHE_DIR_PATH))
+
+        // Once clear _cfg to initialize with an actual test target template directory
+        TemplateUtil.getInstance().clear()
+
+        //Output base.yaml with parameters.
+        TemplateUtil.getInstance().process(
+                TemplateUtilTest.class,
+                liferayVersion,
+                baseFilename,
+                damascus,
+                workTempDir + DS + DamascusProps.BASE_YAML)
+
+        //Run damascus -create
+        String[] args = ["-create"]
+        Damascus.main(args)
+
+        then:
+        //Target path map of a project
+        def pathMap = TestUtils.getPathMap(expectedProjectDirName)
+
+        def apiTargetFiles = FileUtils.listFiles(new File(pathMap["apiPath"]), new RegexFileFilter(".*\\.java"), TrueFileFilter.INSTANCE)
+        def serviceTargetFiles = FileUtils.listFiles(new File(pathMap["servicePath"]), new RegexFileFilter(".*\\.java"), TrueFileFilter.INSTANCE)
+        def webJavaTargetFiles = FileUtils.listFiles(new File(pathMap["webPath"]), new RegexFileFilter(".*\\.java"), TrueFileFilter.INSTANCE)
+        def webJspTargetFiles = FileUtils.listFiles(new File(pathMap["webPath"]), new RegexFileFilter(".*\\.jsp.*"), TrueFileFilter.INSTANCE)
+
+        def prohibitedTermsTargetFiles = new ArrayList(webJspTargetFiles)
+
+        if (prohibitedInServiceImpl) {
+            prohibitedTermsTargetFiles.addAll(
+                    serviceTargetFiles.findAll { it.name.endsWith('LocalServiceImpl.java') })
+        }
+
+        apiTargetFiles.size() > 1
+        serviceTargetFiles.size() > 1
+        webJavaTargetFiles.size() > 1
+        webJspTargetFiles.size() > 1
+
+        noFileContainsAnyTerm(prohibitedTermsTargetFiles, prohibitedTerms)
+
+        where:
+        projectName | liferayVersion | packageName        | baseFilename                 | prohibitedTerms            | prohibitedInServiceImpl | expectedProjectDirName
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_activity_false.yaml"   | ['activity', 'activities'] | true                    | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_categories_false.yaml" | ['category', 'categories'] | false                   | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_discussion_false.yaml" | ['Comments', 'discussion'] | true                    | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_ratings_false.yaml"    | ['ratings']                | true                    | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_tags_false.yaml"       | ['tags']                   | false                   | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_related_false.yaml"    | ['asset-links']            | false                   | "sample-sb"
+    }
+
+    void noFileContainsAnyTerm(files, terms) {
+        files.each { file ->
+            terms.each { term ->
+                assert !file.text.contains(term)
+            }
+        };
+    }
+
+    @Unroll("YAML Do not generate web test <#projectName> version <#liferayVersion> Package <#packageName> expectedProjectDirName <#expectedProjectDirName>")
+    def "YAML Do not generate web test"() {
+        when:
+        System.out.println("YAML Do not generate web test")
+        // Once clear _cfg to initialize with an actual test target template directory
+        TemplateUtil.getInstance().clear()
+
+        def target_file_path = workTempDir + DS + DamascusProps.BASE_YAML
+             
+        Map params = Maps.newHashMap();   
+        params.put("projectName", projectName)
+        params.put("liferayVersion", liferayVersion)
+        params.put("packageName", packageName)
+        String entityName = projectName.replace("-", "")
+        params.put("entityName", entityName)
+        params.put("entityNameLower", StringUtils.lowerCase(entityName))
+        Map damascus = Maps.newHashMap()
+        damascus.put('damascus', params)
+        
+        // Once clear _cfg to initialize with an actual test target template directory
+        TemplateUtil.getInstance().clear()
+        
+        //Output base.yaml with parameters.
+        TemplateUtil.getInstance().process(
+                TemplateUtilTest.class,
+                liferayVersion,
+                "base_no_web.yaml",
+                damascus,
+                target_file_path)
+        
+        //Run damascus -create
+        String[] args = ["-create"]
+        Damascus.main(args)
+
+        def fpath = TestUtils.getPathMap(expectedProjectDirName)
+        def f = new File(fpath["webPath"])
+
+        then:
+        //*-web doesn't exit
+        false == f.exists()
+        false == f.isDirectory()
+
+        where:
+        projectName | liferayVersion | packageName        | expectedProjectDirName
+        "SampleSB"  | "70"           | "com.liferay.test" | "sample-sb"
     }
 }

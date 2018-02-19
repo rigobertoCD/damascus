@@ -27,6 +27,8 @@ public class DamascusProps {
 
     public static final String BASE_JSON = "base.json";
 
+    public static final String BASE_YAML = "base.yaml";
+
     public static final String SERVICE_XML = "service.xml";
 
     public static final String DOT_SLASH_CURRENT_DIR = "." + DS;

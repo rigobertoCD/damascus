@@ -47,18 +47,31 @@ public class InitCommand implements ICommand {
      */
     public void run(Damascus damascus, String... args) {
         try {
-            System.out.println("Creating base.json");
 
-            //Parse template and output
-            TemplateUtil.getInstance()
-                .process(
-                    InitCommand.class,
-                    damascus.getLiferayVersion(),
-                    DamascusProps.BASE_JSON,
-                    getParameters(damascus),
-                    getTargetDir()
-                );
-
+            if(isYaml()){
+                System.out.println("Creating base.yaml");
+	            //Parse template and output
+	            TemplateUtil.getInstance()
+	                .process(
+	                    InitCommand.class,
+	                    damascus.getLiferayVersion(),
+	                    DamascusProps.BASE_YAML,
+	                    getParameters(damascus),
+	                    getTargetDir()
+	                );
+            
+            } else {
+                System.out.println("Creating base.json");
+	            //Parse template and output
+	            TemplateUtil.getInstance()
+	                .process(
+	                    InitCommand.class,
+	                    damascus.getLiferayVersion(),
+	                    DamascusProps.BASE_JSON,
+	                    getParameters(damascus),
+	                    getTargetDir()
+	                );
+            }
             System.out.println("Done.");
 
         } catch (Exception e) {
@@ -79,12 +92,17 @@ public class InitCommand implements ICommand {
         }
 
         String projectDirectoryName = CaseUtil.camelCaseToDashCase(getProjectName());
+        targetDir
+        .append(projectDirectoryName)
+        .append(DamascusProps.DS);
+        
+        if(isYaml()){
+        	targetDir.append(DamascusProps.BASE_YAML);
+        } else {
+        	targetDir.append(DamascusProps.BASE_JSON);
+        }
 
-        return targetDir
-            .append(projectDirectoryName)
-            .append(DamascusProps.DS)
-            .append(DamascusProps.BASE_JSON)
-            .toString();
+        return targetDir.toString();
     }
 
     /**
@@ -116,5 +134,8 @@ public class InitCommand implements ICommand {
 
     @Parameter(names = "-p", description = "Package name. (e.g. com.liferay.test)", validateWith = PackageNameValidator.class)
     private String packageName = null;
+
+    @Parameter(names = "-yaml", description = "Create base.yaml instead of base.json")
+    private boolean yaml = false;
 
 }

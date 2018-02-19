@@ -114,4 +114,23 @@ class InitCommandTest extends Specification {
         argv1   | argv2  | argv3 | argv4         | argv5 | argv6 | expectedProjectDirName
         "-init" | "ToDo" | "-p"  | "com.liferay" | "-v"  | "70"  | "to-do"
     }
+    
+    @Unroll("Init run from main method generating yaml test")
+    def "Init run from main method generating yaml test"() {
+        when:
+        String[] args = [argv1, argv2, argv3, argv4, argv7]
+        new JCommander(initCommand, args)
+        def dms = Spy(Damascus)
+        dms.setLiferayVersion(argv6)
+        initCommand.run(dms, args)
+        def f = new File(workTempDir + DS + expectedProjectDirName + DS + DamascusProps.BASE_YAML)
+
+        then:
+        f.exists()
+        //Other detailed test to confirm if the json is parsed correctly has been done in JsonUtilTest
+
+        where:
+        argv1   | argv2  | argv3 | argv4         | argv5 | argv6 | argv7   | expectedProjectDirName
+        "-init" | "ToDo" | "-p"  | "com.liferay" | "-v"  | "70"  | "-yaml" | "to-do"
+    }
 }

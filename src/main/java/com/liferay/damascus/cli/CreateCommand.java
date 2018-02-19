@@ -197,10 +197,31 @@ public class CreateCommand implements ICommand {
      */
     @Override
     public void run(Damascus damascus, String... args) {
+
+        File baseYamlFile = new File(CREATE_TARGET_PATH + DamascusProps.BASE_YAML);
+        File baseJsonFile = new File(CREATE_TARGET_PATH + DamascusProps.BASE_JSON);
+        
         try {
 
-            System.out.println("Started creating service scaffolding. Fetching base.json");
-
+            System.out.println("Started creating service scaffolding. Fetching base.yaml"); 
+            
+            if(baseYamlFile.exists()){
+            
+            	System.out.println("Generate base.json from base.yaml");
+            	//Create base.json
+            	String jsonString = YamlUtil.convertToJson(baseYamlFile);
+            	
+            	if(baseJsonFile.exists()){
+            		baseJsonFile.delete();
+            	}
+            	
+            	FileUtils.writeStringToFile(baseJsonFile, jsonString, "utf-8", false);
+            	
+            } else {
+            	System.out.println("base.yaml file not found.  Working with base.json");
+                System.out.println("Fetching base.json");
+            }
+            
             // Mapping base.json into an object after parsing values
             DamascusBase dmsb = JsonUtil.getObject(
                 CREATE_TARGET_PATH + DamascusProps.BASE_JSON,
@@ -282,7 +303,7 @@ public class CreateCommand implements ICommand {
 
             // Finalize Project Directory: move modules directories into the current directory
             finalizeProjects(dashCaseProjectName);
-
+            
             System.out.println("Done.");
 
         } catch (DamascusProcessException e) {
@@ -291,6 +312,12 @@ public class CreateCommand implements ICommand {
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            
+            if(baseYamlFile.exists() && baseJsonFile.exists()){
+            	baseJsonFile.delete();
+            	System.out.println("Deleting generated base.josn file");
+            }
         }
     }
 
