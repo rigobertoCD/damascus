@@ -169,7 +169,7 @@
 			<%
 				String publishButtonLabel = "submit";
 			%>
-
+<#if workflow>
 			<%
 				if (WorkflowDefinitionLinkLocalServiceUtil
 					.hasWorkflowDefinitionLink(
@@ -178,6 +178,7 @@
 						publishButtonLabel = "submit-for-publication";
 				}
 			%>
+</#if>
             <aui:button cssClass="btn-lg" type="submit" primary="<%= false %>"
 				onClick='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveEditors();" %>'
 				value="<%=publishButtonLabel%>" />

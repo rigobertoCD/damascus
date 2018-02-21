@@ -1,7 +1,7 @@
 <#include "./license.ftl">
 <#include "./valuables.ftl">
 <#assign createPath = "${serviceModulePath}/src/main/java/${packagePath}/service/workflow/${capFirstModel}WorkflowHandler.java">
-
+<#assign skipTemplate = !workflow>
 package ${packageName}.service.workflow;
 
 import com.liferay.portal.kernel.exception.PortalException;

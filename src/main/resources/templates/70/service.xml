@@ -47,7 +47,6 @@
         <#-- ---------------- -->
         <#-- Workflow         -->
         <#-- ---------------- -->
-        <#if app.asset.workflow?? && true == app.asset.workflow >
         <!-- Workflow related fields -->
         <column name="status" type="int" />
         <column name="statusByUserId" type="long" />
@@ -82,7 +81,6 @@
             <finder-column name="urlTitle" />
             <finder-column arrayable-operator="OR" comparator="=" name="status" />
         </finder>
-        </#if>
 
         </#if>
 
@@ -154,7 +152,9 @@
         <reference entity="DLFolder" package-path="com.liferay.portlet.documentlibrary" />
         <reference entity="PortletPreferences" package-path="com.liferay.portal" />
         <reference entity="Resource" package-path="com.liferay.portal" />
+        <#if app.asset.workflow?? && true == app.asset.workflow >
         <reference entity="WorkflowInstanceLink" package-path="com.liferay.portal" />
+        </#if>
         <reference entity="AssetEntry" package-path="com.liferay.portlet.asset" />
         <reference entity="AssetLink" package-path="com.liferay.portlet.asset" />
         <reference entity="RatingsStats" package-path="com.liferay.portlet.ratings" />

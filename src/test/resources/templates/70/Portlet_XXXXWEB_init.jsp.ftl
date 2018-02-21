@@ -32,7 +32,9 @@
 <%@ page import="com.liferay.portal.kernel.dao.search.SearchContainerResults" %>
 <%@ page import="com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker" %>
 <%@ page import="com.liferay.portal.kernel.dao.search.DisplayTerms" %>
+<#if workflow>
 <%@ page import="com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil"%>
+</#if>
 <%@ page import="com.liferay.portal.kernel.dao.search.RowChecker" %>
 <%@ page import="com.liferay.portal.kernel.security.permission.ActionKeys" %>
 <%@ page import="com.liferay.portal.kernel.workflow.WorkflowConstants" %>
@@ -52,6 +54,8 @@
 <%@ page import="com.liferay.portal.kernel.util.PortletKeys"%>
 <%@ page import="com.liferay.portal.kernel.util.PortalUtil"%>
 <%@ page import="com.liferay.portal.kernel.model.GroupConstants"%>
+
+<%@ page import="com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil"%>
 
 <%@ page import="${packageName}.model.${capFirstModel}" %>
 <%@ page import="${packageName}.service.${capFirstModel}LocalServiceUtil"%>

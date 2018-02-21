@@ -24,6 +24,7 @@
 <#assign tags = application.asset?exists && application.asset.tags>
 <#assign relatedAssets = application.asset?exists && application.asset.relatedAssets>
 <#assign generateActivity = application.asset?exists && application.asset.generateActivity>
+<#assign workflow = application.asset?exists && application.asset.workflow>
 <#assign generateWeb = application.web?exists && application.web>
 <#assign anyGeneratedWeb = damascus.isWebExist()>
 

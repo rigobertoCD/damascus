@@ -402,6 +402,8 @@ class CreateCommandTest extends Specification {
         "SampleSB"  | "70"           | "com.liferay.test" | "base_ratings_false.json"    | ['ratings']                | true                    | "sample-sb"
         "SampleSB"  | "70"           | "com.liferay.test" | "base_tags_false.json"       | ['tags']                   | false                   | "sample-sb"
         "SampleSB"  | "70"           | "com.liferay.test" | "base_related_false.json"    | ['asset-links']            | false                   | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_workflow_false.json"   | ['WorkflowDefinition', 'workflowManager', 'WorkflowHandler', 'WorkflowInstance' ]            | true                    | "sample-sb"
+
     }
 
 
@@ -641,8 +643,8 @@ class CreateCommandTest extends Specification {
         "SampleSB"  | "70"           | "com.liferay.test" | "base_ratings_false.yaml"    | ['ratings']                | true                    | "sample-sb"
         "SampleSB"  | "70"           | "com.liferay.test" | "base_tags_false.yaml"       | ['tags']                   | false                   | "sample-sb"
         "SampleSB"  | "70"           | "com.liferay.test" | "base_related_false.yaml"    | ['asset-links']            | false                   | "sample-sb"
+        "SampleSB"  | "70"           | "com.liferay.test" | "base_workflow_false.yaml"   | ['WorkflowDefinition', 'workflowManager', 'WorkflowHandler', 'WorkflowInstance' ]            | true                    | "sample-sb"
     }
-
     void noFileContainsAnyTerm(files, terms) {
         files.each { file ->
             terms.each { term ->
@@ -650,6 +652,7 @@ class CreateCommandTest extends Specification {
             }
         };
     }
+
 
     @Unroll("YAML Do not generate web test <#projectName> version <#liferayVersion> Package <#packageName> expectedProjectDirName <#expectedProjectDirName>")
     def "YAML Do not generate web test"() {
@@ -697,4 +700,5 @@ class CreateCommandTest extends Specification {
         projectName | liferayVersion | packageName        | expectedProjectDirName
         "SampleSB"  | "70"           | "com.liferay.test" | "sample-sb"
     }
+    
 }

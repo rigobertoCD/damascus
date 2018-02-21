@@ -41,10 +41,12 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+<#if workflow>
 import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowInstance;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
+</#if>
 <#if generateActivity>
 import com.liferay.social.kernel.model.SocialActivityConstants;
 </#if>
@@ -55,7 +57,9 @@ import ${packageName}.service.util.${capFirstModel}Validator;
 <#if generateActivity>
 import ${packageName}.social.${capFirstModel}ActivityKeys;
 </#if>
+<#if workflow>
 import ${packageName}.service.workflow.${capFirstModel}WorkflowManager;
+</#if>
 import com.liferay.trash.kernel.exception.RestoreEntryException;
 import com.liferay.trash.kernel.exception.TrashEntryException;
 import com.liferay.trash.kernel.model.TrashEntry;
@@ -176,12 +180,15 @@ public class ${capFirstModel}LocalServiceImpl
                     serviceContext.getAssetTagNames(),
                     serviceContext.getAssetLinkEntryIds(),
                     serviceContext.getAssetPriority());
-
+<#if workflow>
         // Workflow
+        entry = startWorkflowInstance(userId, entry, serviceContext);
+</#if>
 
-        return startWorkflowInstance(userId, entry, serviceContext);
+        return entry;
     }
 
+<#if workflow>
     /**
      * Start workflow
      *
@@ -217,6 +224,7 @@ public class ${capFirstModel}LocalServiceImpl
             ${capFirstModel}.class.getName(), entry.getPrimaryKey(), entry,
             serviceContext, workflowContext);
     }
+</#if>
 
     public int countAllInGroup(long groupId) {
         int count = ${uncapFirstModel}Persistence.countByGroupId(groupId);
@@ -298,12 +306,14 @@ public class ${capFirstModel}LocalServiceImpl
         trashEntryLocalService.deleteEntry(${capFirstModel}.class.getName(),
                                            entry.getPrimaryKey());
 
+<#if workflow>
         // Workflow
 
         workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(
             entry.getCompanyId(), entry.getGroupId(), ${capFirstModel}.class.getName(),
             entry.getPrimaryKey());
 
+</#if>
         return entry;
     }
 
@@ -563,6 +573,7 @@ public class ${capFirstModel}LocalServiceImpl
                                               extraDataJSONObject.toString(), 0);
 </#if>
 
+<#if workflow>
         // Workflow
 
         if (oldStatus == WorkflowConstants.STATUS_PENDING) {
@@ -570,6 +581,7 @@ public class ${capFirstModel}LocalServiceImpl
                 entry.getCompanyId(), entry.getGroupId(),
                 ${capFirstModel}.class.getName(), entry.getPrimaryKey());
         }
+</#if>
 
         return entry;
     }
@@ -687,10 +699,12 @@ public class ${capFirstModel}LocalServiceImpl
         ${capFirstModel} entry = _updateEntry(orgEntry.getPrimaryKey(), orgEntry,
                                       serviceContext);
 
+<#if workflow>
         if (entry.isPending() || entry.isDraft()) {
         } else {
             entry.setStatus(WorkflowConstants.STATUS_DRAFT);
         }
+</#if>
 
         ${capFirstModel} updatedEntry = ${uncapFirstModel}Persistence.update(entry);
 
@@ -701,9 +715,10 @@ public class ${capFirstModel}LocalServiceImpl
                     serviceContext.getAssetLinkEntryIds(),
                     serviceContext.getAssetPriority());
 
+<#if workflow>
         updatedEntry = startWorkflowInstance(user.getUserId(), updatedEntry,
                                              serviceContext);
-
+</#if>
         return updatedEntry;
     }
 
@@ -1261,7 +1276,7 @@ public class ${capFirstModel}LocalServiceImpl
 
         return entry;
     }
-
+<#if workflow>
     /**
      * Workflow handling
      */
@@ -1283,6 +1298,7 @@ public class ${capFirstModel}LocalServiceImpl
         return ${capFirstModel}WorkflowManager.completeWorkflowTaskAtOnce(
                     user, scorpGroupId, classPK, transitionName);
     }
+</#if>
 
     /**
      * Check if workflow is enabled.
@@ -1295,10 +1311,14 @@ public class ${capFirstModel}LocalServiceImpl
      */
     public boolean isWorkflowEnable(User user, long scorpGroupId, long classPK)
         throws PortalException {
+<#if workflow>
         return ${capFirstModel}WorkflowManager.isWorkflowEnable(
         user, scorpGroupId, classPK);
+<#else>
+		return false;
+</#if>
     }
-
+<#if workflow>
     /**
      * Get Transition names
      * <p/>
@@ -1407,6 +1427,7 @@ public class ${capFirstModel}LocalServiceImpl
         return ${capFirstModel}WorkflowManager.getWorkflowTasks(
         user, className,searchByUserRoles);
     }
+</#if>
 
     /**
      * Is Workflow Exist
@@ -1418,8 +1439,12 @@ public class ${capFirstModel}LocalServiceImpl
      * @return true if a workflow exists or false
      */
     public boolean isWorkflowExist(User user, long scorpGroupId, String className, long classPK) {
+<#if workflow>
         return ${capFirstModel}WorkflowManager.isWorkflowExist(
         user, scorpGroupId, className, classPK);
+<#else>
+		return false;
+</#if>
     }
 
     /**

@@ -322,17 +322,22 @@ public class CreateCommand implements ICommand {
             System.out.println("Moving all modules projects into the same directory");
             
             // Generate Language.Properties file
-            System.out.println("Generating Language.properties");
-            String languagePropertiesPath = TemplateUtil.getInstance().getLanguagePropertiesPath(
-                CREATE_TARGET_PATH,
-                dashCaseProjectName
-            );
-            String webPath = TemplateUtil.getInstance().getWebPath(
-                    CREATE_TARGET_PATH,
-                    dashCaseProjectName
-                );
-			generateLanguageProperties(dmsb, DamascusProps.LANGUAGE_PROPERTIES, languagePropertiesPath, webPath);
-
+            boolean generateLanguage = false;
+            for(Application app: dmsb.applications){
+            	generateLanguage = generateLanguage || app.web;
+            }
+            if(generateLanguage){
+	            System.out.println("Generating Language.properties");
+	            String languagePropertiesPath = TemplateUtil.getInstance().getLanguagePropertiesPath(
+	                CREATE_TARGET_PATH,
+	                dashCaseProjectName
+	            );
+	            String webPath = TemplateUtil.getInstance().getWebPath(
+	                    CREATE_TARGET_PATH,
+	                    dashCaseProjectName
+	                );
+				generateLanguageProperties(dmsb, DamascusProps.LANGUAGE_PROPERTIES, languagePropertiesPath, webPath);
+            }
             // Finalize Project Directory: move modules directories into the current directory
             finalizeProjects(dashCaseProjectName);
             
