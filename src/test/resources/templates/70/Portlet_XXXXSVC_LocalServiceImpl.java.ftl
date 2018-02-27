@@ -586,6 +586,8 @@ public class ${capFirstModel}LocalServiceImpl
         return entry;
     }
 
+    @Indexable(type = IndexableType.REINDEX)
+    @Override
     public ${capFirstModel} moveEntryToTrash(long userId, long entryId)
         throws PortalException {
 
